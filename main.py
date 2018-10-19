@@ -8,6 +8,9 @@ NUMBER_OF_DAYS = 100
 
 
 def main():
+    # Dict - pairs
+    potential_terrorist_pairs = {}
+
     # We should simulate daily choice
     for day in range(NUMBER_OF_DAYS):
         print(f'DAY {day}:')
@@ -30,7 +33,15 @@ def main():
         # Make combinations to connect person in pair
         for (hotel_id, guest_ids) in visits_in_hotels.items():
             guests_combinations = list(itertools.combinations(guest_ids, 2))
-            print(guests_combinations)
+
+            # Update counters in pairs dict
+            for (guest, partner) in guests_combinations:
+                key = f'{guest}-{partner}'
+                together_days = potential_terrorist_pairs.get(key, 0)
+                potential_terrorist_pairs.update({key: together_days + 1})
+
+    # Display pairs
+    print(potential_terrorist_pairs.items())
 
 
 if __name__ == '__main__':
