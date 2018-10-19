@@ -1,4 +1,5 @@
 import numpy as np
+import itertools
 
 NUMBER_OF_PEOPLE = 10000
 PROBABILITY = 0.1
@@ -25,6 +26,11 @@ def main():
                 guest_ids = visits_in_hotels.get(hotel_id, [])
                 guest_ids.append(person_id)
                 visits_in_hotels.update({hotel_id: guest_ids})
+
+        # Make combinations to connect person in pair
+        for (hotel_id, guest_ids) in visits_in_hotels.items():
+            guests_combinations = list(itertools.combinations(guest_ids, 2))
+            print(guests_combinations)
 
 
 if __name__ == '__main__':
