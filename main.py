@@ -10,13 +10,21 @@ def main():
     # We should simulate daily choice
     for day in range(NUMBER_OF_DAYS):
         print(f'DAY {day}:')
+
+        # Dict - visit hotels in selected days
+        visits_in_hotels = {}
+
         # We should simulate each person
         for person_id in range(NUMBER_OF_PEOPLE):
             # Check random decision - visit hotel or not
             if np.random.random_sample() < PROBABILITY:
                 # Guest decided visit hotel - should check which
                 hotel_id = np.random.randint(0, NUMBER_OF_HOTELS)
-                print(f'Guest {person_id} visit {hotel_id}')
+
+                # Append person_id to guest ids in selected hotel
+                guest_ids = visits_in_hotels.get(hotel_id, [])
+                guest_ids.append(person_id)
+                visits_in_hotels.update({hotel_id: guest_ids})
 
 
 if __name__ == '__main__':
