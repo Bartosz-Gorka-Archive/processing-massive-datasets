@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+import collections
 
 NUMBER_OF_PEOPLE = 10000
 PROBABILITY = 0.1
@@ -18,8 +19,6 @@ def main():
 
     # We should simulate daily choice
     for day in range(NUMBER_OF_DAYS):
-        print(f'DAY {day}')
-
         # Dict - visit hotels in selected days
         visits_in_hotels = {}
 
@@ -52,6 +51,16 @@ def main():
             terrorist_days += len(list(itertools.combinations(range(cardinality), 2)))
             for person_id in pair.split('-'):
                 unique_terrorist.add(person_id)
+
+    # Order histogram stats
+    ordered_stats = collections.OrderedDict(sorted(meetings_stats.items()))
+
+    # Display results
+    print(f'Terrorist * day = {terrorist_days}')
+    print(f'Unique terrorist count = {len(unique_terrorist)}')
+    print('Histogram stats')
+    for (key, val) in ordered_stats.items():
+        print(f'\t{key}: {val}')
 
 
 if __name__ == '__main__':
