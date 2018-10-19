@@ -11,9 +11,14 @@ def main():
     # Dict - pairs
     potential_terrorist_pairs = {}
 
+    # Dict - statistics
+    meetings_stats = {}
+    terrorist_days = 0
+    unique_terrorist = set()
+
     # We should simulate daily choice
     for day in range(NUMBER_OF_DAYS):
-        print(f'DAY {day}:')
+        print(f'DAY {day}')
 
         # Dict - visit hotels in selected days
         visits_in_hotels = {}
@@ -40,8 +45,13 @@ def main():
                 together_days = potential_terrorist_pairs.get(key, 0)
                 potential_terrorist_pairs.update({key: together_days + 1})
 
-    # Display pairs
-    print(potential_terrorist_pairs.items())
+    # Calculate statistics
+    for (pair, cardinality) in potential_terrorist_pairs.items():
+        meetings_stats.update({cardinality: meetings_stats.get(cardinality, 0) + 1})
+        if cardinality >= 2:
+            terrorist_days += len(list(itertools.combinations(range(cardinality), 2)))
+            for person_id in pair.split('-'):
+                unique_terrorist.add(person_id)
 
 
 if __name__ == '__main__':
