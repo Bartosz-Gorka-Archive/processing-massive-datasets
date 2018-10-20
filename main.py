@@ -1,6 +1,5 @@
 import numpy as np
 import itertools
-import collections
 
 NUMBER_OF_PEOPLE = 10000
 PROBABILITY = 0.1
@@ -24,7 +23,7 @@ def main():
         potential_terrorist_pairs = {}
 
         # Dict - statistics
-        meetings_stats = {}
+        meetings_stats = np.zeros(10)
         terrorist_days = 0
         unique_terrorist = set()
 
@@ -57,27 +56,25 @@ def main():
 
         # Calculate statistics
         for (pair, cardinality) in potential_terrorist_pairs.items():
-            meetings_stats.update({cardinality: meetings_stats.get(cardinality, 0) + 1})
+            meetings_stats[cardinality] += 1
             if cardinality >= 2:
                 terrorist_days += len(list(itertools.combinations(range(cardinality), 2)))
                 for person_id in pair.split('-'):
                     unique_terrorist.add(person_id)
-
-        # Order histogram stats
-        ordered_stats = collections.OrderedDict(sorted(meetings_stats.items()))
 
         # Display results when enabled
         if DISPLAY_ITERATIONS:
             f.write(f'Terrorist * day = {terrorist_days}\n')
             f.write(f'Unique terrorist count = {len(unique_terrorist)}\n')
             f.write('Histogram stats\n')
-            for (key, val) in ordered_stats.items():
-                f.write(f'\t{key}: {val}\n')
+            for (key, val) in enumerate(meetings_stats):
+                if val > 0:
+                    f.write(f'\t{key}: {val}\n')
 
         # Append values from current iteration to main stats params
         unique_terrorist_cardinality_list.append(len(unique_terrorist))
         terrorist_days_cardinality_list.append(terrorist_days)
-        meetings_stats_list.append(ordered_stats)
+        meetings_stats_list.append(meetings_stats)
 
     # Calculate and display stats
     f.write('\nTerrorist * day\n')
@@ -93,17 +90,18 @@ def main():
     f.write(f'\tMAX: {np.max(unique_terrorist_cardinality_list)}\n')
 
     histogram_stats = {}
-    for dictionary in meetings_stats_list:
-        for (key, val) in dictionary.items():
+    for record in meetings_stats_list:
+        for (key, val) in enumerate(record):
             visits = histogram_stats.get(key, [])
             visits.append(val)
             histogram_stats.update({key: visits})
 
     f.write('\nHistogram stats\n')
     for (key, val) in histogram_stats.items():
-        f.write(f'\t{key}: MIN {np.min(val)} \t| AVG {np.average(val)} \t| MEDIAN {np.median(val)} \t| MAX {np.max(val)}\n')
-
-    f.write('\n-----\n\n')
+        max_value = np.max(val)
+        if max_value > 0:
+            f.write(f'\t{key}: MIN {np.min(val)} \t| AVG {np.average(val)} \t| MEDIAN {np.median(val)}' +
+                    f'\t| MAX {max_value}\n')
 
 
 if __name__ == '__main__':
