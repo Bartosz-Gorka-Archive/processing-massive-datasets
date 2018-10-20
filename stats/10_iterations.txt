@@ -1,90 +1,87 @@
 Iteration 0
-Terrorist * day = 2467
-Unique terrorist count = 3663
+Terrorist * day = 2587
+Unique terrorist count = 3736
 Histogram stats
-	1: 495497
-	2: 2458
-	3: 3
+	1: 499049.0
+	2: 2563.0
+	3: 8.0
 Iteration 1
-Terrorist * day = 2411
-Unique terrorist count = 3586
-Histogram stats
-	1: 491682
-	2: 2393
-	3: 6
-Iteration 2
-Terrorist * day = 2482
-Unique terrorist count = 3636
-Histogram stats
-	1: 495286
-	2: 2452
-	3: 10
-Iteration 3
-Terrorist * day = 2458
-Unique terrorist count = 3627
-Histogram stats
-	1: 494344
-	2: 2428
-	3: 10
-Iteration 4
-Terrorist * day = 2467
+Terrorist * day = 2450
 Unique terrorist count = 3592
 Histogram stats
-	1: 493719
-	2: 2455
-	3: 4
+	1: 493479.0
+	2: 2435.0
+	3: 5.0
+Iteration 2
+Terrorist * day = 2506
+Unique terrorist count = 3670
+Histogram stats
+	1: 497691.0
+	2: 2497.0
+	3: 3.0
+Iteration 3
+Terrorist * day = 2468
+Unique terrorist count = 3560
+Histogram stats
+	1: 496372.0
+	2: 2432.0
+	3: 12.0
+Iteration 4
+Terrorist * day = 2453
+Unique terrorist count = 3588
+Histogram stats
+	1: 493126.0
+	2: 2441.0
+	3: 4.0
 Iteration 5
-Terrorist * day = 2491
-Unique terrorist count = 3711
+Terrorist * day = 2495
+Unique terrorist count = 3670
 Histogram stats
-	1: 492948
-	2: 2461
-	3: 10
+	1: 498097.0
+	2: 2471.0
+	3: 8.0
 Iteration 6
-Terrorist * day = 2416
-Unique terrorist count = 3583
+Terrorist * day = 2380
+Unique terrorist count = 3538
 Histogram stats
-	1: 492198
-	2: 2398
-	3: 6
+	1: 491518.0
+	2: 2347.0
+	3: 11.0
 Iteration 7
-Terrorist * day = 2434
-Unique terrorist count = 3616
+Terrorist * day = 2435
+Unique terrorist count = 3594
 Histogram stats
-	1: 493112
-	2: 2416
-	3: 6
+	1: 495248.0
+	2: 2405.0
+	3: 10.0
 Iteration 8
-Terrorist * day = 2504
-Unique terrorist count = 3673
+Terrorist * day = 2361
+Unique terrorist count = 3469
 Histogram stats
-	1: 493117
-	2: 2480
-	3: 8
+	1: 494173.0
+	2: 2334.0
+	3: 9.0
 Iteration 9
-Terrorist * day = 2451
-Unique terrorist count = 3646
+Terrorist * day = 2480
+Unique terrorist count = 3698
 Histogram stats
-	1: 495474
-	2: 2424
-	3: 9
+	1: 495063.0
+	2: 2462.0
+	3: 6.0
 
 Terrorist * day
-	MIN: 2411
-	AVERAGE: 2458.1
-	MEDIAN: 2462.5
-	MAX: 2504
+	MIN: 2361
+	AVERAGE: 2461.5
+	MEDIAN: 2460.5
+	MAX: 2587
 
 Unique terrorist count
-	MIN: 3583
-	AVERAGE: 3633.3
-	MEDIAN: 3631.5
-	MAX: 3711
+	MIN: 3469
+	AVERAGE: 3611.5
+	MEDIAN: 3593.0
+	MAX: 3736
 
 Histogram stats
-	1: MIN 491682 	| AVG 493737.7 	| MEDIAN 493418.0 	| MAX 495497
-	2: MIN 2393 	| AVG 2436.5 	| MEDIAN 2440.0 	| MAX 2480
-	3: MIN 3 	| AVG 7.2 	| MEDIAN 7.0 	| MAX 10
-
------
-
+	1: MIN 491518.0 	| AVG 495381.6 	| MEDIAN 495155.5	| MAX 499049.0
+	2: MIN 2334.0 	| AVG 2438.7 	| MEDIAN 2438.0	| MAX 2563.0
+	3: MIN 3.0 	| AVG 7.6 	| MEDIAN 8.0	| MAX 12.0
