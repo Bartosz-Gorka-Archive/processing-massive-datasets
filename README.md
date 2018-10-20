@@ -1,6 +1,9 @@
 # Processing massive datasets
 Processing massive datasets - Poznan University of Technology, study project
 
+## Task description
+You can check description in `docs` dictionary. Files prepared in the Polish language.
+
 ## Stats
 Check files `{NUMBER_OF_ITERATIONS}_iterations.txt` in `stats` directory to verify each iteration.
 
