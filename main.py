@@ -6,7 +6,7 @@ NUMBER_OF_PEOPLE = 10000
 PROBABILITY = 0.1
 NUMBER_OF_HOTELS = 100
 NUMBER_OF_DAYS = 100
-NUMBER_OF_STATS_ITERATIONS = 2
+NUMBER_OF_STATS_ITERATIONS = 10
 DISPLAY_ITERATIONS = False
 
 
@@ -17,6 +17,7 @@ def main():
     meetings_stats_list = []
 
     for iteration in range(NUMBER_OF_STATS_ITERATIONS):
+        print(f'Iteration {iteration}')
         # Dict - pairs
         potential_terrorist_pairs = {}
 
@@ -75,6 +76,30 @@ def main():
         unique_terrorist_cardinality_list.append(len(unique_terrorist))
         terrorist_days_cardinality_list.append(terrorist_days)
         meetings_stats_list.append(ordered_stats)
+
+    # Calculate and display stats
+    print('\nTerrorist * day')
+    print(f'\tMIN: {np.min(terrorist_days_cardinality_list)}')
+    print(f'\tAVERAGE: {np.average(terrorist_days_cardinality_list)}')
+    print(f'\tMEDIAN: {np.median(terrorist_days_cardinality_list)}')
+    print(f'\tMAX: {np.max(terrorist_days_cardinality_list)}')
+
+    print('\nUnique terrorist count')
+    print(f'\tMIN: {np.min(unique_terrorist_cardinality_list)}')
+    print(f'\tAVERAGE: {np.average(unique_terrorist_cardinality_list)}')
+    print(f'\tMEDIAN: {np.median(unique_terrorist_cardinality_list)}')
+    print(f'\tMAX: {np.max(unique_terrorist_cardinality_list)}')
+
+    histogram_stats = {}
+    for dictionary in meetings_stats_list:
+        for (key, val) in dictionary.items():
+            visits = histogram_stats.get(key, [])
+            visits.append(val)
+            histogram_stats.update({key: visits})
+
+    print('\nHistogram stats')
+    for (key, val) in histogram_stats.items():
+        print(f'\t{key}: MIN {np.min(val)} \t| AVG {np.average(val)} \t| MEDIAN {np.median(val)} \t| MAX {np.max(val)}')
 
 
 if __name__ == '__main__':
