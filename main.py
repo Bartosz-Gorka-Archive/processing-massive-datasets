@@ -7,6 +7,7 @@ PROBABILITY = 0.1
 NUMBER_OF_HOTELS = 100
 NUMBER_OF_DAYS = 100
 NUMBER_OF_STATS_ITERATIONS = 2
+DISPLAY_ITERATIONS = False
 
 
 def main():
@@ -62,12 +63,13 @@ def main():
         # Order histogram stats
         ordered_stats = collections.OrderedDict(sorted(meetings_stats.items()))
 
-        # Display results
-        print(f'Terrorist * day = {terrorist_days}')
-        print(f'Unique terrorist count = {len(unique_terrorist)}')
-        print('Histogram stats')
-        for (key, val) in ordered_stats.items():
-            print(f'\t{key}: {val}')
+        # Display results when enabled
+        if DISPLAY_ITERATIONS:
+            print(f'Terrorist * day = {terrorist_days}')
+            print(f'Unique terrorist count = {len(unique_terrorist)}')
+            print('Histogram stats')
+            for (key, val) in ordered_stats.items():
+                print(f'\t{key}: {val}')
 
         # Append values from current iteration to main stats params
         unique_terrorist_cardinality_list.append(len(unique_terrorist))
