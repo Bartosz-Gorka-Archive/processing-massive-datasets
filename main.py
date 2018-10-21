@@ -23,9 +23,9 @@ def main():
         potential_terrorist_pairs = {}
 
         # Dict - statistics
-        meetings_stats = np.zeros(10)
+        meetings_stats = np.zeros(5)
         terrorist_days = 0
-        unique_terrorist = set()
+        unique_terrorist = []
 
         # We should simulate daily choice
         for day in range(NUMBER_OF_DAYS):
@@ -59,20 +59,23 @@ def main():
             meetings_stats[cardinality] += 1
             if cardinality >= 2:
                 terrorist_days += len(list(itertools.combinations(range(cardinality), 2)))
-                for person_id in pair.split('-'):
-                    unique_terrorist.add(person_id)
+                unique_terrorist.extend(pair.split('-'))
+
+        # Make unique terrorist list really unique
+        unique_terrorist = np.unique(unique_terrorist)
+        unique_terrorist_cardinality = np.size(unique_terrorist)
 
         # Display results when enabled
         if DISPLAY_ITERATIONS:
             f.write(f'Terrorist * day = {terrorist_days}\n')
-            f.write(f'Unique terrorist count = {len(unique_terrorist)}\n')
+            f.write(f'Unique terrorist count = {unique_terrorist_cardinality}\n')
             f.write('Histogram stats\n')
             for (key, val) in enumerate(meetings_stats):
                 if val > 0:
                     f.write(f'\t{key}: {val}\n')
 
         # Append values from current iteration to main stats params
-        unique_terrorist_cardinality_list.append(len(unique_terrorist))
+        unique_terrorist_cardinality_list.append(unique_terrorist_cardinality)
         terrorist_days_cardinality_list.append(terrorist_days)
         meetings_stats_list.append(meetings_stats)
 
