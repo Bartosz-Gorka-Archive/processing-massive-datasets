@@ -19,6 +19,7 @@ def main():
     create_tracks_table_sql = """
     CREATE TABLE tracks (
       id          INT NOT NULL AUTO_INCREMENT,
+      track_id    VARCHAR(50) NOT NULL,
       song_id     VARCHAR(20) NOT NULL,
       artist      VARCHAR(500) DEFAULT NULL,
       title       text DEFAULT NULL,
@@ -28,26 +29,9 @@ def main():
     cursor.execute(create_tracks_table_sql)
 
     # Load data to tracks table
-    path = f'{os.getcwd()}/unique_tracks_formatted.txt'
-    cursor.execute("LOAD DATA INFILE %s INTO TABLE tracks FIELDS TERMINATED BY '|' (song_id, artist, title);", (path,))
-    mariadb_connection.commit()
-    mariadb_connection.close()
+    path = f'{os.getcwd()}/unique_tracks_serialized.txt'
+    cursor.execute("LOAD DATA INFILE %s INTO TABLE tracks FIELDS TERMINATED BY '<SEP>' (track_id, song_id, artist, title);", (path,))
 
-    # Load missing records (with | separator)
-    with codecs.open('with_separator.txt', 'r', encoding='UTF-8') as data:
-        records = []
-        for line in data.read().split('\n')[:-1]:
-            l_line = line.split("<SEP>", -1)
-            records.append((l_line[1], l_line[2], l_line[3]))
-
-        mariadb_connection = mariadb.connect(user='root', password='', database='pmd')
-        cursor = mariadb_connection.cursor()
-        cursor.executemany("INSERT INTO tracks (song_id, artist, title) VALUES (%s, %s, %s)", records)
-        mariadb_connection.commit()
-        mariadb_connection.close()
-
-    mariadb_connection = mariadb.connect(user='root', password='', database='pmd')
-    cursor = mariadb_connection.cursor()
     # Create indexes on tracks table
     cursor.execute("CREATE OR REPLACE INDEX tracks_song_id_index ON tracks (song_id);")
     cursor.execute("CREATE OR REPLACE INDEX tracks_artist_index ON tracks (artist);")
@@ -55,6 +39,12 @@ def main():
     # Delete table if exists
     cursor.execute("DROP TABLE IF EXISTS samples;")
     cursor.execute("DROP TABLE IF EXISTS dates;")
+
+    # Commit changes and refresh connection with database
+    mariadb_connection.commit()
+    mariadb_connection.close()
+    mariadb_connection = mariadb.connect(user='root', password='', database='pmd')
+    cursor = mariadb_connection.cursor()
 
     # Create new dates table
     create_dates_table_sql = """
@@ -82,6 +72,7 @@ def main():
       id                INT NOT NULL AUTO_INCREMENT,
       user_id           VARCHAR(100) NOT NULL,
       song_id           VARCHAR(20) NOT NULL,
+      date_val          INT NOT NULL,
       date_id           INT NOT NULL,
       PRIMARY KEY       (id)
     );
@@ -90,16 +81,23 @@ def main():
     mariadb_connection.commit()
     mariadb_connection.close()
 
+    # Make content in this large file
+    # with open('triplets_sample_20p.txt', 'r') as sourcefile:
+    #     content = sourcefile.readlines()
+    #     with open('samples_formatted.txt', 'w') as textfile:
+    #         for line in content:
+    #             ll = line.replace('\n', '').split('<SEP>')
+    #             year_month = [int(i) for i in datetime.utcfromtimestamp(int(ll[2])).strftime('%Y %m').split(' ')]
+    #             textfile.writelines((ll[0], ' ', ll[1], ' ', str(12*(year_month[0] - 2000) + year_month[1]), '\n'))
+
     # Load data to samples table
     mariadb_connection = mariadb.connect(user='root', password='', database='pmd')
     cursor = mariadb_connection.cursor()
     file_path = f'{os.getcwd()}/samples_formatted.txt'
-    cursor.execute("LOAD DATA INFILE %s INTO TABLE samples FIELDS TERMINATED BY ' ' (user_id, song_id, date_id);", (file_path,))
+    cursor.execute("LOAD DATA INFILE %s INTO TABLE samples FIELDS TERMINATED BY '<SEP>' (user_id, song_id, date_val, date_id);", (file_path,))
 
     # Add indexes on samples
-    cursor.execute("CREATE OR REPLACE INDEX samples_user_id_index ON samples (user_id);")
     cursor.execute("CREATE OR REPLACE INDEX samples_song_id_index ON samples (song_id);")
-    cursor.execute("CREATE OR REPLACE INDEX samples_date_id_index ON samples (date_id);")
 
     mariadb_connection.commit()
     mariadb_connection.close()
