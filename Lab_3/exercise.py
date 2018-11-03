@@ -1,6 +1,5 @@
 import codecs
 import sqlite3
-from time import time
 from datetime import datetime
 
 
@@ -77,7 +76,6 @@ def insert_into_dates(conn):
 def build_structure(line):
     row = line.rstrip('\n').split('<SEP>')
     date = datetime.utcfromtimestamp(int(row[2]))
-
     return {
     'user_id': row[0],
     'song_id': row[1],
@@ -85,10 +83,15 @@ def build_structure(line):
     }
 
 
-def samples_data():
-    # data = open('test.txt', 'r')
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
+def samples_data_load(conn):
     data = open('triplets_sample_20p.txt', 'r')
-    return [build_structure(item) for item in data.readlines()]
+    for l in chunks(data.readlines(), 1000000):
+        insert_into_samples(conn, [build_structure(item) for item in l])
 
 
 def create_samples_table(conn):
@@ -192,14 +195,49 @@ def exercise_4(conn):
 
 
 def exercise_5(conn):
-    pass
+    sql = '''
+    SELECT
+      user_id
+    FROM
+      samples
+    WHERE
+      song_id IN (
+        SELECT
+          song_id
+        FROM
+          samples
+        WHERE
+          song_id IN (
+            SELECT
+              song_id
+            FROM
+              tracks
+            WHERE
+              artist = 'Queen'
+          )
+        GROUP BY
+          song_id
+        ORDER BY
+          COUNT(song_id) DESC
+        LIMIT 3
+      )
+    GROUP BY
+      user_id
+    HAVING
+      COUNT(DISTINCT song_id) = 3
+    ORDER BY
+      user_id ASC
+    LIMIT 10;
+    '''
+
+    return conn.execute(sql)
+
 
 def main():
-    start = time()
     # Set connection with SQLite database
     conn = sqlite3.connect('pmd.db')
 
-    # # Create tracks table
+    # Create tracks table
     create_tracks_table(conn)
 
     # Prepare and load data to table
@@ -214,44 +252,31 @@ def main():
     insert_into_dates(conn)
 
     # Prepare and load samples
-    records = samples_data()
     create_samples_table(conn)
-    insert_into_samples(conn, records)
+    samples_data_load(conn)
     create_indexes_samples(conn)
 
     # Exercise 1
-    print('\nExercise 1')
     for row in exercise_1(conn):
         show(row)
-    print(time() - start)
 
     # Exercise 2
-    print('\nExercise 2')
     for row in exercise_2(conn):
         show(row)
-    print(time() - start)
 
     # Exercise 3
-    print('\nExercise 3')
     for row in exercise_3(conn):
         show(row)
-    print(time() - start)
 
     # Exercise 4
-    print('\nExercise 4')
     for row in exercise_4(conn):
         show(row)
-    print(time() - start)
 
     # Exercise 5
-    print('\nExercise 5')
     for row in exercise_5(conn):
         show(row)
-    print(time() - start)
 
-    conn.commit()
     conn.close()
-    print(time() - start)
 
 
 if __name__ == "__main__":
