@@ -42,6 +42,9 @@ Also required `sed` to set correct delimiter (`<SEP>` can't be used, allowed onl
 
 Finally project support `SQLite3` database with the fast loading files and execution queries.
 
+## Database schema
+![Database schema](schema.png)
+
 ## Result
 ### Exercise 1
 ```
