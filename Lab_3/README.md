@@ -13,14 +13,14 @@ On MacOS Docker can raise `Killed` message when you forgot set-up size in prefer
 
 ### Build image
 ```bash
-docker build -t PMD127228 .
+docker build -t pmd127228 .
 ```
 
 After build you should receive message `Successfully built <IMAGE_ID>`.
 
 ### Start project
 ```bash
-docker run -it --rm PMD127228
+docker run -it --rm pmd127228
 ```
 
 ## Technology
