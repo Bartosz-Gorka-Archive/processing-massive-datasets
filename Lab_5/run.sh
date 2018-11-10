@@ -16,8 +16,14 @@ rm tracks.txt sorted_tracks.txt
 
 ## Iteration on large samples file and generate date file
 gawk -F'<SEP>' '{
-  date = strftime("%Y-%m-%d", $3);
-  split(date, array, "-");
-  print date "," array[1] "," array[2] "," array[3] > "dates.txt"
-  print $0 FS date > "samples_formatted.txt"
+  year_month_day = strftime("%Y-%m-%d", $3);
+  date[year_month_day] = 1
+  print $0 FS year_month_day > "samples_formatted.txt"
+}
+END {
+  n = asorti(date, indexes);
+  for (i = 1; i <= n; i++) {
+    split(indexes[i], array, "-");
+    print indexes[i] "," array[1] "," array[2] "," array[3] > "dates.txt"
+  }
 }' triplets_sample_20p.txt
