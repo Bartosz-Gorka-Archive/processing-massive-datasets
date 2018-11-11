@@ -1,4 +1,6 @@
 #!/bin/bash
+TZ=GMT0;
+export TZ;
 
 # Change encoding in tracks file
 iconv -t UTF-8 -f ISO-8859-2 unique_tracks.txt > serialized.txt
