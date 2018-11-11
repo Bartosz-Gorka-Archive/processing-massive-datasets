@@ -29,3 +29,11 @@ END {
     print indexes[i] "," array[1] "," array[2] "," array[3] > "dates.txt"
   }
 }' triplets_sample_20p.txt
+
+# Part 2 - run codes
+chmod +x exercise_1.sh exercise_2.sh exercise_3.sh exercise_4.sh exercise_5.sh
+./exercise_1.sh
+./exercise_2.sh
+./exercise_3.sh
+./exercise_4.sh
+./exercise_5.sh
