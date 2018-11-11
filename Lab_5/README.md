@@ -37,6 +37,11 @@ db6a78c78c9239aba33861dae7611a6893fb27d5 529
 99ac3d883681e21ea68071019dba828ce76fe94d 499
 ```
 
+### Exercise 3
+```bash
+Coldplay 201081
+```
+
 ### Exercise 4
 ```bash
 01 2353423
