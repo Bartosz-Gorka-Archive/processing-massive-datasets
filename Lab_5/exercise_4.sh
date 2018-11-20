@@ -1,7 +1,12 @@
 #!/bin/bash
-gawk -F',' '{
-  split($4, date, "-");
-  months[date[2]]++;
+gawk -F',' '
+FNR==NR {
+  dates[$1][1] = $2
+  dates[$1][2] = $3
+  dates[$1][3] = $4
+}
+FNR!=NR {
+  months[dates[$4][2]]++;
 }
 END {
   n = asorti(months, indexes);
@@ -9,4 +14,4 @@ END {
   for (i = 1; i <= n; i++) {
     print indexes[i] " " months[indexes[i]];
   }
-}' samples_formatted.txt
+}' dates.txt samples_formatted.txt
