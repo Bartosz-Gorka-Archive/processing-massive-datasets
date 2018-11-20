@@ -20,7 +20,7 @@ rm tracks.txt sorted_tracks.txt
 gawk -F'<SEP>' '{
   year_month_day = strftime("%Y-%m-%d", $3);
   date[year_month_day] = 1
-  print $0 FS year_month_day > "samples_formatted.txt"
+  print $1 "," $2 "," $3 "," year_month_day > "samples_formatted.txt"
 }
 END {
   n = asorti(date, indexes);

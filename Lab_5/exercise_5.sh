@@ -5,7 +5,7 @@ gawk -F $'\v' '{
   }
 }' tracks_unique.txt
 
-gawk -F '<SEP>' '
+gawk -F ',' '
 FNR==NR {
   queen[$1] = $1
 }

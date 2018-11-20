@@ -1,5 +1,5 @@
 #!/bin/bash
-gawk -F'<SEP>' '{
+gawk -F',' '{
   listen[$2]++;
 }
 END {

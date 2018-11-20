@@ -1,5 +1,5 @@
 #!/bin/bash
-gawk -F'<SEP>' '{
+gawk -F',' '{
   split($4, date, "-");
   months[date[2]]++;
 }
