@@ -44,3 +44,18 @@ Multiplication with vector V
 | 10| 1.9626786205858442|
 +---+-------------------+
 ```
+
+### Task 3
+Approximate PI value
+```bash
+1: π value is ~ 3.141458
+2: π value is ~ 3.1415868
+3: π value is ~ 3.1416356
+4: π value is ~ 3.14098
+5: π value is ~ 3.141538
+6: π value is ~ 3.1408752
+7: π value is ~ 3.142724
+8: π value is ~ 3.1411452
+9: π value is ~ 3.1416968
+10: π value is ~ 3.1407052
+```
