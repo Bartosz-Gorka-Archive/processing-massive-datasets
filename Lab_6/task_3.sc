@@ -11,7 +11,7 @@ for (iteration <- 1 to iterations) {
     var x = math.random
     var y = math.random
 
-    if(x*x + y*y < 1) {
+    if(x*x + y*y <= 1) {
       ("in", 1)
     } else {
       ("out", 1)
