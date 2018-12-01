@@ -19,7 +19,7 @@ val matrix_n = sc.textFile("source/matrix_n.txt").map(line => {
 val result = (matrix_m
   .map(r => (r._2, (r._1, r._3)))
   .join(matrix_n.map(r => (r._1, (r._2, r._3))))
-  .map({case (it, ((m_index, m_val), (n_index, n_val))) => ((m_index, n_index), m_val * n_val)})
+  .map({case (it, ((m_index, m_val), (n_index, n_val))) => ((m_index.toString, n_index.toString), m_val * n_val)})
   .reduceByKey(_ + _)
   .sortByKey(true)
 )
