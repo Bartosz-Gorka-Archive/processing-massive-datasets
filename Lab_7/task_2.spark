@@ -25,4 +25,4 @@ val result = (matrix_m
 )
 
 // Print result of multiplication action
-result.collect.foreach({case ((index_i, index_j), value) => println(f"${index_i} ${index_j} ${value}")})
+result.collect.foreach({case ((index_i, index_j), value) => println(f"${index_i} ${index_j}\t${value}")})
