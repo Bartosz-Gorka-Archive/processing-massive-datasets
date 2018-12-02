@@ -14,7 +14,7 @@ val dates = spark.read.format("com.databricks.spark.csv").
   toDF("date_id","year","month","day")
 
 samples.select("date_id").
-  join(dates, samples("date_id") === dates("date_id")).
+  join(dates, "date_id").
   groupBy("month").
   count().
   orderBy(asc("month")).

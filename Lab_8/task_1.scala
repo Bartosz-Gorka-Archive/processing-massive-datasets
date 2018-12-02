@@ -21,7 +21,7 @@
 // 'false' in show required because we should show song's title (No truncate it)
 samples.groupBy("song_id").
   count().
-  join(songs, samples("song_id") === songs("song_id")).
+  join(songs, "song_id").
   select("title", "artist", "count").
   orderBy(desc("count")).
   show(10, false)

@@ -19,7 +19,7 @@
 // Next join song's details and group by 'artist'
 // Count elements in group, order it and select only first (largest count)
 samples.select("song_id").
-  join(songs, samples("song_id") === songs("song_id")).
+  join(songs, "song_id").
   groupBy("artist").
   count().
   orderBy(desc("count")).
