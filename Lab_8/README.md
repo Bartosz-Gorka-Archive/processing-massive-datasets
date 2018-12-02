@@ -34,3 +34,12 @@
 |99ac3d883681e21ea68071019dba828ce76fe94d|499  |
 +----------------------------------------+-----+
 ```
+
+## Task 3 - Artist with the largest number of listened songs
+```bash
++--------+------+
+|artist  |count |
++--------+------+
+|Coldplay|201081|
++--------+------+
+```
