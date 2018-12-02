@@ -3,7 +3,7 @@
  * -- Task 2: Ranking - 10 users with the largest number of listened unique songs --
  */
 
-// Reas samples - this file has comma as separator
+// Read samples - this file has comma as separator
  val samples = spark.read.format("com.databricks.spark.csv").
   option("sep",",").
   csv("../Lab_5/samples_formatted.txt").
