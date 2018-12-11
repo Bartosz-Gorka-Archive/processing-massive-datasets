@@ -25,7 +25,9 @@ val top_listened_queen_songs = samples.groupBy("song_id").
 samples.select("song_id", "user_id").
   join(top_listened_queen_songs, "song_id").
   filter(not(col("title").isNull)).
-  distinct().
+  groupBy("user_id", "song_id").
+  count().
+  select("user_id").
   groupBy("user_id").
   count().
   filter(col("count") === 3).
