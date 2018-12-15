@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-// TODO implement contains
 // TODO calculate stats and verify results
 
 public class BloomFilter {
@@ -15,12 +14,8 @@ public class BloomFilter {
     private int n = 0;
     private int k = 0;
     private int prime;
-    public BitSet vector;
+    private BitSet vector;
     private ArrayList<HashFunction> functions = new ArrayList<>();
-
-    private double calculateExpectedFP() {
-        return Math.pow(1 - Math.exp(-this.k * (double)this.n / this.size), this.k);
-    }
 
     private BloomFilter(int size, int k, int n) {
         this.size = size;
@@ -36,7 +31,6 @@ public class BloomFilter {
         // Run generator hash functions
         this.prepareHashFunctions();
     }
-
 
     private int primeNumber() {
         BigInteger value = new BigInteger(String.valueOf(this.size));
@@ -71,9 +65,23 @@ public class BloomFilter {
         }
     }
 
-    public Boolean contains(int key) {
-        // TODO
-        return true;
+    private Boolean contains(int value) {
+        int[] positions = generateHash(value);
+        boolean found = true;
+
+        for(int position : positions) {
+            // When found position with 0 (false) - break loop because value not exist in BloomFilter
+            if (!this.vector.get(position)) {
+                found = false;
+                break;
+            }
+        }
+
+        return found;
+    }
+
+    private double calculateExpectedFP() {
+        return Math.pow(1 - Math.exp(-this.k * (double)this.n / this.size), this.k);
     }
 
     public static void main(String[] args) {
