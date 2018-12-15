@@ -1,20 +1,23 @@
 package com.bartoszgorka;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
-// TODO generator hash functions - generate A, B parameters
 // TODO implement add
 // TODO implement contains
 // TODO calculate stats and verify results
 
 public class BloomFilter {
-    int size = 0;
-    int n = 0;
-    int k = 0;
-    BitSet vector;
+    private int size = 0;
+    private int n = 0;
+    private int k = 0;
+    private int prime;
+    public BitSet vector;
+    private ArrayList<HashFunction> functions = new ArrayList<>();
 
     private double calculateExpectedFP() {
         return Math.pow(1 - Math.exp(-this.k * (double)this.n / this.size), this.k);
@@ -28,14 +31,26 @@ public class BloomFilter {
         // Set bitset
         this.vector = new BitSet(size);
 
+        // Calculate prime number and store it in object
+        this.prime = this.primeNumber();
+
         // Run generator hash functions
-        // TODO
+        this.prepareHashFunctions();
     }
 
 
-    private BigInteger primeNumber() {
+    private int primeNumber() {
         BigInteger value = new BigInteger(String.valueOf(this.size));
-        return value.nextProbablePrime();
+        return value.nextProbablePrime().intValue();
+    }
+
+    private void prepareHashFunctions() {
+        for(int i = 1; i <= this.k; i++) {
+            int a = ThreadLocalRandom.current().nextInt(1, this.prime);
+            int b = ThreadLocalRandom.current().nextInt(0, this.prime);
+            HashFunction hashFunction = new HashFunction(a, b);
+            this.functions.add(hashFunction);
+        }
     }
 
     public void add(int key) {
