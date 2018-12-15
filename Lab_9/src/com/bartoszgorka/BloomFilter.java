@@ -8,35 +8,35 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BloomFilter {
-    private int size = 0;
-    private int n = 0;
-    private int k = 0;
+    private int filterSize = 0;
+    private int numberOfElements = 0;
+    private int numberOfHashFunctions = 0;
     private int prime;
     private BitSet vector;
     private ArrayList<HashFunction> functions = new ArrayList<>();
 
-    private BloomFilter(int size, int k, int n) {
-        this.size = size;
-        this.k = k;
-        this.n = n;
+    private BloomFilter(int filterSize, int numberOfHashFunctions, int numberOfElements) {
+        this.filterSize = filterSize;
+        this.numberOfHashFunctions = numberOfHashFunctions;
+        this.numberOfElements = numberOfElements;
 
-        // Set bitset
-        this.vector = new BitSet(size);
+        // Set BitSet vector
+        this.vector = new BitSet(filterSize);
 
         // Calculate prime number and store it in object
-        this.prime = this.primeNumber();
+        this.prime = this.findPrimeNumber();
 
         // Run generator hash functions
         this.prepareHashFunctions();
     }
 
-    private int primeNumber() {
-        BigInteger value = new BigInteger(String.valueOf(this.size));
+    private int findPrimeNumber() {
+        BigInteger value = new BigInteger(String.valueOf(this.filterSize));
         return value.nextProbablePrime().intValue();
     }
 
     private void prepareHashFunctions() {
-        for(int i = 1; i <= this.k; ++i) {
+        for(int i = 1; i <= this.numberOfHashFunctions; ++i) {
             long a = ThreadLocalRandom.current().nextInt(1, this.prime);
             long b = ThreadLocalRandom.current().nextInt(0, this.prime);
             HashFunction hashFunction = new HashFunction(a, b);
@@ -46,10 +46,10 @@ public class BloomFilter {
 
     private int[] generateHash(int value) {
         int pointer = 0;
-        int[] result = new int[this.k];
+        int[] result = new int[this.numberOfHashFunctions];
 
         for(HashFunction function : this.functions) {
-            result[pointer] = (int)(function.hash(value, this.prime) % this.size);
+            result[pointer] = (int)(function.hash(value, this.prime) % this.filterSize);
             ++pointer;
         }
 
@@ -79,13 +79,15 @@ public class BloomFilter {
     }
 
     private double calculateExpectedFP() {
-        return Math.pow(1 - Math.exp(-this.k * (double)this.n / this.size), this.k);
+        return Math.pow(1 -
+                Math.exp(-this.numberOfHashFunctions * (double)this.numberOfElements / this.filterSize),
+                this.numberOfHashFunctions);
     }
 
-    private void generateStats(int range, HashSet<Integer> set) {
+    private void generateStats(int valueRange, HashSet<Integer> set) {
         int TP = 0, FP = 0, TN = 0, FN = 0, key;
 
-        for (int i = 0; i < range; i++) {
+        for (int i = 0; i < valueRange; i++) {
             key = i;
             Boolean containsBF = this.contains(key);
             Boolean containsHS = set.contains(key);
@@ -102,35 +104,39 @@ public class BloomFilter {
         }
 
         System.out.println("TP = " + String.format("%6d", TP) + "\tTPR = "
-                + String.format("%1.4f", (double) TP / (double) n));
+                + String.format("%1.4f", (double) TP / (double) numberOfElements));
         System.out.println("TN = " + String.format("%6d", TN) + "\tTNR = "
-                + String.format("%1.4f", (double) TN / (double) (range - n)));
+                + String.format("%1.4f", (double) TN / (double) (valueRange - numberOfElements)));
         System.out.println("FN = " + String.format("%6d", FN) + "\tFNR = "
-                + String.format("%1.4f", (double) FN / (double) (n)));
+                + String.format("%1.4f", (double) FN / (double) (numberOfElements)));
         System.out.println("FP = " + String.format("%6d", FP) + "\tFPR = "
-                + String.format("%1.4f", (double) FP / (double) (range - n)));
-        System.out.println("Expected FPR = " + this.calculateExpectedFP());
+                + String.format("%1.4f", (double) FP / (double) (valueRange - numberOfElements)));
+        System.out.println("Expected FPR = " + String.format("%1.4f", this.calculateExpectedFP()));
     }
 
     public static void main(String[] args) {
-        int n = 10_000;
-        int range = 100_000_000;
         double factor = 10;
-        int size = (int) Math.round(factor * n);
-        int k = 1; // Number of hash functions
+        int numberOfHashFunctions = 1;
+        int numberOfElements = 10_000;
+        int valueRange = 100_000_000;
+
+        int filterSize = (int) Math.round(factor * numberOfElements);
 
         Random random = new Random(0);
-        BloomFilter bf = new BloomFilter(size, k, n);
-        HashSet<Integer> set = new HashSet<>(n);
+        BloomFilter bf = new BloomFilter(filterSize, numberOfHashFunctions, numberOfElements);
+        HashSet<Integer> set = new HashSet<>(numberOfElements);
 
-        while (set.size() < n) {
-            set.add(random.nextInt(range));
+        // Generate random keys to store in BloomFilter
+        for(int i = 0; i <= numberOfElements; ++i) {
+            set.add(random.nextInt(valueRange));
         }
 
+        // Add all generated items to bitmap
         for (int item : set) {
             bf.add(item);
         }
 
-        bf.generateStats(range, set);
+        // Calculate stats and verify implementation
+        bf.generateStats(valueRange, set);
     }
 }
