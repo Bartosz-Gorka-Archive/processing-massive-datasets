@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-// TODO implement add
 // TODO implement contains
 // TODO calculate stats and verify results
 
@@ -45,16 +44,31 @@ public class BloomFilter {
     }
 
     private void prepareHashFunctions() {
-        for(int i = 1; i <= this.k; i++) {
-            int a = ThreadLocalRandom.current().nextInt(1, this.prime);
-            int b = ThreadLocalRandom.current().nextInt(0, this.prime);
+        for(int i = 1; i <= this.k; ++i) {
+            long a = ThreadLocalRandom.current().nextInt(1, this.prime);
+            long b = ThreadLocalRandom.current().nextInt(0, this.prime);
             HashFunction hashFunction = new HashFunction(a, b);
             this.functions.add(hashFunction);
         }
     }
 
-    public void add(int key) {
-        // TODO
+    private int[] generateHash(int value) {
+        int pointer = 0;
+        int[] result = new int[this.k];
+
+        for(HashFunction function : this.functions) {
+            result[pointer] = (int)(function.hash(value, this.prime) % this.size);
+            ++pointer;
+        }
+
+        return result;
+    }
+
+    private void add(int value) {
+        int[] positions = generateHash(value);
+        for(int position : positions) {
+            this.vector.set(position);
+        }
     }
 
     public Boolean contains(int key) {
@@ -66,8 +80,6 @@ public class BloomFilter {
         int n = 10_000;
         int range = 100_000_000;
         double factor = 10;
-        // M - size bloom filter
-        // create x times A i B
         int size = (int) Math.round(factor * n);
         int k = 1; // Number of hash functions
 
