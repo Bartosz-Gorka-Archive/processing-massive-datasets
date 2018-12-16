@@ -1,15 +1,15 @@
 package com.bartoszgorka;
 
 public class HashFunction {
-    private long a;
-    private long b;
+    private int a;
+    private int b;
 
-    public HashFunction(long a, long b) {
+    public HashFunction(int a, int b) {
         this.a = a;
         this.b = b;
     }
 
-    public long hash(int x, long prime) {
-        return (this.a * (long)x + this.b) % prime;
+    public int hash(int x, int prime) {
+        return Math.abs((this.a * x + this.b) % prime);
     }
 }

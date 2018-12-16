@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class BloomFilter {
     private int filterSize = 0;
@@ -36,9 +35,11 @@ public class BloomFilter {
     }
 
     private void prepareHashFunctions() {
+        Random rand = new Random(0);
+
         for(int i = 1; i <= this.numberOfHashFunctions; ++i) {
-            long a = ThreadLocalRandom.current().nextInt(1, this.prime);
-            long b = ThreadLocalRandom.current().nextInt(0, this.prime);
+            int a = rand.nextInt(this.prime - 1) + 1;
+            int b = rand.nextInt(this.prime);
             HashFunction hashFunction = new HashFunction(a, b);
             this.functions.add(hashFunction);
         }
@@ -49,7 +50,7 @@ public class BloomFilter {
         int[] result = new int[this.numberOfHashFunctions];
 
         for(HashFunction function : this.functions) {
-            result[pointer] = (int)(function.hash(value, this.prime) % this.filterSize);
+            result[pointer] = function.hash(value, this.prime) % this.filterSize;
             ++pointer;
         }
 
@@ -115,9 +116,9 @@ public class BloomFilter {
     }
 
     public static void main(String[] args) {
-        double factor = 10;
-        int numberOfHashFunctions = 1;
-        int numberOfElements = 10_000;
+        double factor = 20;
+        int numberOfHashFunctions = 5;
+        int numberOfElements = 100_000;
         int valueRange = 100_000_000;
 
         int filterSize = (int) Math.round(factor * numberOfElements);
