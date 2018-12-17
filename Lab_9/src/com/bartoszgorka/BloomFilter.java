@@ -11,13 +11,15 @@ public class BloomFilter {
     private int numberOfElements = 0;
     private int numberOfHashFunctions = 0;
     private int prime;
+    private int valueRange;
     private BitSet vector;
     private ArrayList<HashFunction> functions = new ArrayList<>();
 
-    private BloomFilter(int filterSize, int numberOfHashFunctions, int numberOfElements) {
+    private BloomFilter(int filterSize, int numberOfHashFunctions, int numberOfElements, int valueRange) {
         this.filterSize = filterSize;
         this.numberOfHashFunctions = numberOfHashFunctions;
         this.numberOfElements = numberOfElements;
+        this.valueRange = valueRange;
 
         // Set BitSet vector
         this.vector = new BitSet(filterSize);
@@ -30,7 +32,7 @@ public class BloomFilter {
     }
 
     private int findPrimeNumber() {
-        BigInteger value = new BigInteger(String.valueOf(this.filterSize));
+        BigInteger value = new BigInteger(String.valueOf(this.valueRange));
         return value.nextProbablePrime().intValue();
     }
 
@@ -50,7 +52,7 @@ public class BloomFilter {
         int[] result = new int[this.numberOfHashFunctions];
 
         for(HashFunction function : this.functions) {
-            result[pointer] = function.hash(value, this.prime) % this.filterSize;
+            result[pointer] = (int)(function.hash(value, this.prime) % this.filterSize);
             ++pointer;
         }
 
@@ -124,7 +126,7 @@ public class BloomFilter {
         int filterSize = (int) Math.round(factor * numberOfElements);
 
         Random random = new Random(0);
-        BloomFilter bf = new BloomFilter(filterSize, numberOfHashFunctions, numberOfElements);
+        BloomFilter bf = new BloomFilter(filterSize, numberOfHashFunctions, numberOfElements, valueRange);
         HashSet<Integer> set = new HashSet<>(numberOfElements);
 
         // Generate random keys to store in BloomFilter
