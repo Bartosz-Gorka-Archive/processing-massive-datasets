@@ -47,30 +47,26 @@ public class BloomFilter {
         }
     }
 
-    private int[] generateHash(int value) {
-        int pointer = 0;
-        int[] result = new int[this.numberOfHashFunctions];
-
-        for(HashFunction function : this.functions) {
-            result[pointer] = (int)(function.hash(value, this.prime) % this.filterSize);
-            ++pointer;
-        }
-
-        return result;
+    private int generateHash(int value, HashFunction function) {
+        return (int)(function.hash(value, this.prime) % this.filterSize);
     }
 
     private void add(int value) {
-        int[] positions = generateHash(value);
-        for(int position : positions) {
+        int position;
+
+        for(HashFunction function : this.functions) {
+            position = this.generateHash(value, function);
             this.vector.set(position);
         }
     }
 
     private Boolean contains(int value) {
-        int[] positions = generateHash(value);
+        int position;
         boolean found = true;
 
-        for(int position : positions) {
+        for(HashFunction function : this.functions) {
+            position = this.generateHash(value, function);
+
             // When found position with 0 (false) - break loop because value not exist in BloomFilter
             if (!this.vector.get(position)) {
                 found = false;
@@ -113,13 +109,13 @@ public class BloomFilter {
         System.out.println("FN = " + String.format("%6d", FN) + "\tFNR = "
                 + String.format("%1.4f", (double) FN / (double) (numberOfElements)));
         System.out.println("FP = " + String.format("%6d", FP) + "\tFPR = "
-                + String.format("%1.4f", (double) FP / (double) (valueRange - numberOfElements)));
-        System.out.println("Expected FPR = " + String.format("%1.4f", this.calculateExpectedFP()));
+                + String.format("%1.6f", (double) FP / (double) (valueRange - numberOfElements)));
+        System.out.println("Expected FPR = " + String.format("%1.6f", this.calculateExpectedFP()));
     }
 
     public static void main(String[] args) {
-        double factor = 20;
-        int numberOfHashFunctions = 5;
+        double factor = 10;
+        int numberOfHashFunctions = 10;
         int numberOfElements = 100_000;
         int valueRange = 100_000_000;
 
