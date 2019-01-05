@@ -1,4 +1,5 @@
 import csv
+from numpy import sum as np_sum
 
 SOURCE_FILE_NAME = 'facts.csv'
 NEAREST_NEIGHBOR_SIZE = 100
@@ -13,13 +14,9 @@ def jaccard(list_a, list_b):
 
     # Search in shorter list
     if length_list_a >= length_list_b:
-        for value in list_a:
-            if value in list_b:
-                intersection_count += 1
+        intersection_count = np_sum([1 for value in list_a if value in list_b])
     else:
-        for value in list_b:
-            if value in list_a:
-                intersection_count += 1
+        intersection_count = np_sum([1 for value in list_b if value in list_a])
 
     return intersection_count / (length_list_a + length_list_b - intersection_count)
 
@@ -53,7 +50,7 @@ def sort_by_similarity(similarity_list):
 
 
 def nearest_neighbors(similarity):
-    f = open('stats_custom_check.txt', 'w+')
+    f = open('example.txt', 'w+')
     for user_id in sorted(similarity.keys()):
         list_of_partners_similarity = similarity[user_id];
         if user_id > 100:
@@ -61,9 +58,8 @@ def nearest_neighbors(similarity):
 
         f.write(f'User = {user_id}\n')
         f.write('{:8d} 1.00000\n'.format(user_id))
-        for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]:
-            if record[1] > 0:
-                f.write('{:8d} {:7.5f}\n'.format(record[0], record[1]))
+        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE] if record[1] > 0]
+
     f.close()
 
 
