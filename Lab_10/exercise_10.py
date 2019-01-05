@@ -1,26 +1,37 @@
 import csv
-from itertools import chain
-from collections import Counter
 
-SOURCE_FILE_NAME = 'facts3.csv'
+SOURCE_FILE_NAME = 'facts.csv'
 NEAREST_NEIGHBOR_SIZE = 100
 
 
 def jaccard(list_a, list_b):
     # List stored 'hit' in song_id - no zeros in both records
     # When value in one or both lists - we are sure this value can be used in Jaccard Index
-    all_elements_list = chain(list_b, list_a)
+    intersection_count = 0
+    length_list_a = len(list_a)
+    length_list_b = len(list_b)
 
-    # all_elements_list = list_a + list_b
-    elements_cardinality = Counter(all_elements_list).values()
-
-    total_objects = len(elements_cardinality)
-    the_same = len(list(filter(lambda x: x == 2, elements_cardinality)))
-
-    if total_objects > 0:
-        return the_same / total_objects
-    else:
+    if length_list_a == 0 or length_list_b == 0:
         return 0.0
+
+    ind_a = 0
+    ind_b = 0
+
+    while True:
+        if list_a[ind_a] == list_b[ind_b]:
+            intersection_count += 1
+            ind_a += 1
+            ind_b += 1
+        elif list_a[ind_a] < list_b[ind_b]:
+            ind_a += 1
+        else:
+            ind_b += 1
+
+        if ind_a == length_list_a or ind_b == length_list_b:
+            # No more similar
+            break
+
+    return intersection_count / (length_list_a + length_list_b - intersection_count)
 
 
 def calculate_similarity(similarity, songs, max_user_id):
@@ -52,7 +63,7 @@ def sort_by_similarity(similarity_list):
 
 
 def nearest_neighbors(similarity):
-    f = open('stats.txt', 'w+')
+    f = open('stats_custom_check.txt', 'w+')
     for user_id in sorted(similarity.keys()):
         list_of_partners_similarity = similarity[user_id];
         if user_id > 100:
@@ -81,7 +92,7 @@ def main():
         for record in reader:
             # Fist value in record is a `user_id`, second - `song_id`
             user_id = int(record[0])
-            song_id = record[1]
+            song_id = int(record[1])
 
             # If previous user is the same - append song to list
             if user_id == previous_user_id:
@@ -90,12 +101,14 @@ def main():
                 # New user - we must store list of song ids, run calculations and start new group
                 if previous_user_id != 0:
                     user_songs_ids = list(set(user_songs_ids))
+                    user_songs_ids.sort()
                     user_songs_groups[previous_user_id] = user_songs_ids
 
                 previous_user_id = user_id
                 user_songs_ids = [song_id]
 
         user_songs_ids = list(set(user_songs_ids))
+        user_songs_ids.sort()
         user_songs_groups[previous_user_id] = user_songs_ids
 
         print('BUILT!')
