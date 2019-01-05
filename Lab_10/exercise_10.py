@@ -11,25 +11,15 @@ def jaccard(list_a, list_b):
     length_list_a = len(list_a)
     length_list_b = len(list_b)
 
-    if length_list_a == 0 or length_list_b == 0:
-        return 0.0
-
-    ind_a = 0
-    ind_b = 0
-
-    while True:
-        if list_a[ind_a] == list_b[ind_b]:
-            intersection_count += 1
-            ind_a += 1
-            ind_b += 1
-        elif list_a[ind_a] < list_b[ind_b]:
-            ind_a += 1
-        else:
-            ind_b += 1
-
-        if ind_a == length_list_a or ind_b == length_list_b:
-            # No more similar
-            break
+    # Search in shorter list
+    if length_list_a >= length_list_b:
+        for value in list_a:
+            if value in list_b:
+                intersection_count += 1
+    else:
+        for value in list_b:
+            if value in list_a:
+                intersection_count += 1
 
     return intersection_count / (length_list_a + length_list_b - intersection_count)
 
@@ -59,7 +49,7 @@ def calculate_similarity(similarity, songs, max_user_id):
 
 
 def sort_by_similarity(similarity_list):
-    return sorted(similarity_list, key=lambda record: record[1], reverse=True)
+    return sorted(similarity_list, key=lambda record: (record[1], record[0]), reverse=True)
 
 
 def nearest_neighbors(similarity):
