@@ -14,9 +14,13 @@ def jaccard(list_a, list_b):
 
     # Search in shorter list
     if length_list_a >= length_list_b:
-        intersection_count = np_sum([1 for value in list_a if value in list_b])
+        for value in list_a:
+            if value in list_b:
+                intersection_count += 1
     else:
-        intersection_count = np_sum([1 for value in list_b if value in list_a])
+        for value in list_b:
+            if value in list_a:
+                intersection_count += 1
 
     return intersection_count / (length_list_a + length_list_b - intersection_count)
 
