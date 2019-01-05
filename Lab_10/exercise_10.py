@@ -1,7 +1,8 @@
 import csv
 from collections import Counter
 
-SOURCE_FILE_NAME = 'facts2.csv'
+SOURCE_FILE_NAME = 'facts.csv'
+NEAREST_NEIGHBOR_SIZE = 100
 
 
 def jaccard(list_a, list_b):
@@ -22,22 +23,37 @@ def jaccard(list_a, list_b):
 def calculate_similarity(similarity, songs, user_id):
     # Fetch from songs our record (list listened songs)
     my_song_ids = songs.get(user_id)
-    print(user_id)
 
     # Run in loop Jaccard calculations - skip our record
     for (partner_user_id, partner_songs_list) in songs.items():
-        similarity_value = jaccard(my_song_ids, partner_songs_list)
+        if partner_user_id != user_id:
+            similarity_value = jaccard(my_song_ids, partner_songs_list)
 
-        # TODO - verify sort by value and change structure
-        # Set my similarity with partner - his/her stats
-        partner_similarity_list = similarity.get(partner_user_id, [])
-        partner_similarity_list.append([user_id, similarity_value])
-        similarity.update({partner_user_id: partner_similarity_list})
+            # TODO - verify sort by value and change structure
+            # Set my similarity with partner - his/her stats
+            partner_similarity_list = similarity.get(partner_user_id, [])
+            partner_similarity_list.append([user_id, similarity_value])
+            similarity.update({partner_user_id: partner_similarity_list})
 
-        # Similarity - my stats
-        my_similarity_list = similarity.get(user_id, [])
-        my_similarity_list.append([partner_user_id, similarity_value])
-        similarity.update({user_id: my_similarity_list})
+            # Similarity - my stats
+            my_similarity_list = similarity.get(user_id, [])
+            my_similarity_list.append([partner_user_id, similarity_value])
+            similarity.update({user_id: my_similarity_list})
+
+
+def sort_by_similarity(similarity_list):
+    return sorted(similarity_list, key=lambda record: record[1], reverse=True)
+
+
+def nearest_neighbors(similarity):
+    f = open('stats.txt', 'a')
+    for (user_id, list_of_partners_similarity) in similarity.items():
+        f.write(f'User = {user_id}\n')
+        f.write('{:8d} 1.00000\n'.format(user_id))
+        for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]:
+            if record[1] > 0:
+                f.write('{:8d} {:7.5f}\n'.format(record[0], record[1]))
+    f.close()
 
 
 def main():
@@ -63,9 +79,10 @@ def main():
             else:
                 # New user - we must store list of song ids, run calculations and start new group
                 # To speed up calculations we should make songs unique
-                user_songs_ids = list(set(user_songs_ids))
-                user_songs_groups.update({previous_user_id: user_songs_ids})
-                calculate_similarity(user_similarity, user_songs_groups, previous_user_id)
+                if previous_user_id != 0:
+                    user_songs_ids = list(set(user_songs_ids))
+                    user_songs_groups.update({previous_user_id: user_songs_ids})
+                    calculate_similarity(user_similarity, user_songs_groups, previous_user_id)
 
                 previous_user_id = user_id
                 user_songs_ids = [song_id]
@@ -76,8 +93,7 @@ def main():
         calculate_similarity(user_similarity, user_songs_groups, previous_user_id)
 
         print('FINAL')
-        for (key, value) in user_similarity.items():
-            print(key, value)
+        nearest_neighbors(user_similarity)
 
 
 if __name__ == '__main__':
