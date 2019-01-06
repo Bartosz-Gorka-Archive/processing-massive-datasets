@@ -1,7 +1,7 @@
 import csv
 from numpy import sum as np_sum
 
-SOURCE_FILE_NAME = 'facts3.csv'
+SOURCE_FILE_NAME = 'facts.csv'
 NEAREST_NEIGHBOR_SIZE = 100
 
 
@@ -47,14 +47,14 @@ def sort_by_similarity(similarity_list):
 
 
 def nearest_neighbors(similarity):
-    f = open('example.txt', 'w+')
+    f = open('RESULTS_100.txt', 'w+')
     for user_id in sorted(similarity.keys()):
         list_of_partners_similarity = similarity[user_id];
         if user_id > 100:
             break
 
         f.write(f'User = {user_id}\n')
-        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE-1]]
+        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]]
 
     f.close()
 
