@@ -27,14 +27,17 @@ def jaccard(list_a, list_b):
 
 def calculate_similarity(similarity, songs):
     for (user_id, my_song_list) in songs.items():
+        # For now only first 100 users
         if user_id > 100:
             break
 
         my_similarity_list = similarity.get(user_id, [])
 
+        # Calculate Jaccard Index with all partners
         for (partner_id, partner_songs_list) in songs.items():
             similarity_value = jaccard(my_song_list, partner_songs_list)
 
+            # Add only when greater than zero
             if similarity_value > 0:
                 my_similarity_list.append([partner_id, similarity_value])
 
@@ -43,16 +46,18 @@ def calculate_similarity(similarity, songs):
 
 
 def sort_by_similarity(similarity_list):
+    # Sort first by value, when conflicts - user_id
     return sorted(similarity_list, key=lambda record: (record[1], record[0]), reverse=True)
 
 
 def nearest_neighbors(similarity):
     f = open('RESULTS_100.txt', 'w+')
     for user_id in sorted(similarity.keys()):
-        list_of_partners_similarity = similarity[user_id];
+        # Store only first 100 users
         if user_id > 100:
             break
 
+        list_of_partners_similarity = similarity[user_id];
         f.write(f'User = {user_id}\n')
         [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]]
 
