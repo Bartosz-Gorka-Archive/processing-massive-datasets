@@ -12,8 +12,8 @@ def jaccard(list_a, list_b):
     length_list_a = len(list_a)
     length_list_b = len(list_b)
 
-    # Search in shorter list
-    if length_list_a >= length_list_b:
+    # Search based on shorter list
+    if length_list_a < length_list_b:
         for value in list_a:
             if value in list_b:
                 intersection_count += 1
@@ -62,7 +62,7 @@ def nearest_neighbors(similarity):
 
         f.write(f'User = {user_id}\n')
         f.write('{:8d} 1.00000\n'.format(user_id))
-        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE] if record[1] > 0]
+        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE-1] if record[1] > 0]
 
     f.close()
 
@@ -103,7 +103,7 @@ def main():
 
         print('BUILT!')
         calculate_similarity(user_similarity, user_songs_groups, previous_user_id)
-        print('SORT AND STORE!')
+        print('STORE!')
         nearest_neighbors(user_similarity)
         print('FINISH')
 
