@@ -39,7 +39,7 @@ def calculate_similarity(similarity, songs):
 
             # Add only when greater than zero
             if similarity_value > 0:
-                if len(my_similarity_list) < 100:
+                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE:
                     heappush(my_similarity_list, [similarity_value, partner_id])
                 else:
                     heappushpop(my_similarity_list, [similarity_value, partner_id])
