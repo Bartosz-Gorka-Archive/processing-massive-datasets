@@ -1,5 +1,5 @@
 import csv
-from numpy import sum as np_sum
+from heapq import heappush, heappushpop
 
 SOURCE_FILE_NAME = 'facts.csv'
 NEAREST_NEIGHBOR_SIZE = 100
@@ -39,7 +39,10 @@ def calculate_similarity(similarity, songs):
 
             # Add only when greater than zero
             if similarity_value > 0:
-                my_similarity_list.append([partner_id, similarity_value])
+                if len(my_similarity_list) < 100:
+                    heappush(my_similarity_list, [similarity_value, partner_id])
+                else:
+                    heappushpop(my_similarity_list, [similarity_value, partner_id])
 
         # Store updated stats
         similarity[user_id] = my_similarity_list
@@ -47,19 +50,19 @@ def calculate_similarity(similarity, songs):
 
 def sort_by_similarity(similarity_list):
     # Sort first by value, when conflicts - user_id
-    return sorted(similarity_list, key=lambda record: (record[1], record[0]), reverse=True)
+    return sorted(similarity_list, key=lambda record: (record[0], record[1]), reverse=True)
 
 
 def nearest_neighbors(similarity):
     f = open('RESULTS_100.txt', 'w+')
     for user_id in sorted(similarity.keys()):
         # Store only first 100 users
-        if user_id > 100:
+        if user_id > NEAREST_NEIGHBOR_SIZE:
             break
 
         list_of_partners_similarity = similarity[user_id];
         f.write(f'User = {user_id}\n')
-        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]]
+        [f.write('{:8d} {:7.5f}\n'.format(record[1], record[0])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]]
 
     f.close()
 
