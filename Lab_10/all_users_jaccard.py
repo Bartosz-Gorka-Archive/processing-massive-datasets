@@ -1,22 +1,24 @@
 import csv
 from itertools import combinations
+from heapq import heappush, heappushpop
 
-SOURCE_FILE_NAME = 'facts.csv'
+SOURCE_FILE_NAME = 'facts3.csv'
+RESULTS_FILE_NAME = 'results.txt'
 NEAREST_NEIGHBOR_SIZE = 100
 
 
 def sort_by_similarity(similarity_list):
-    return sorted(similarity_list, key=lambda record: (record[1], record[0]), reverse=True)
+    return sorted(similarity_list, key=lambda record: (record[0], record[1]), reverse=True)
 
 
 def nearest_neighbors(similarity):
-    f = open('wyniktotal.txt', 'w+')
+    f = open(RESULTS_FILE_NAME, 'w+')
     for user_id in sorted(similarity.keys()):
         list_of_partners_similarity = similarity[user_id]
 
         f.write(f'User = {user_id}\n')
         f.write('{:8d} 1.00000\n'.format(user_id)) # I know - this is a hack
-        [f.write('{:8d} {:7.5f}\n'.format(record[0], record[1])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE-1]]
+        [f.write('{:8d} {:7.5f}\n'.format(record[1], record[0])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE-1]]
 
     f.close()
 
@@ -71,11 +73,17 @@ def main():
             value = hits / (total - hits)
 
             similar = similarity.get(user_1, [])
-            similar.append([user_2, value])
+            if len(similar) < NEAREST_NEIGHBOR_SIZE:
+                heappush(similar, [value, user_2])
+            else:
+                heappushpop(similar, [value, user_2])
             similarity[user_1] = similar
 
             similar = similarity.get(user_2, [])
-            similar.append([user_1, value])
+            if len(similar) < NEAREST_NEIGHBOR_SIZE:
+                heappush(similar, [value, user_1])
+            else:
+                heappushpop(similar, [value, user_1])
             similarity[user_2] = similar
 
         print('SAVE')
