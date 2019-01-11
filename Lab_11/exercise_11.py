@@ -1,4 +1,5 @@
 import csv
+from sympy import nextprime
 from heapq import heappush, heappushpop
 
 SOURCE_FILE_NAME = 'facts2.csv'
@@ -38,6 +39,10 @@ def minhash_similarity(list_a, list_b, length):
             hits += 1
 
     return hits / length
+
+
+def next_prime(n):
+    return nextprime(n)
 
 
 def calculate_similarity(similarity, songs):
@@ -83,11 +88,9 @@ def nearest_neighbors(similarity):
 
 
 # TODO list
-# - minhash similarity
 # - build structure with user_id: hashed song_id list
 # - hash song_id -> minhashes
 # - build structure set of song_id, next dictionary with hashes
-# - prime number search
 # - hash functions - generate list of parameters a, b
 # - RMSE function
 # - compare results and calculate RMSE
@@ -95,7 +98,7 @@ def nearest_neighbors(similarity):
 # - prepare raport - graphs
 
 def main():
-    x = minhash_similarity([1, 2, 3], [3, 2, 1], 3)
+    x = next_prime(1000032)
     print(x)
     # with open(SOURCE_FILE_NAME, 'r') as f:
     #     reader = csv.reader(f)
