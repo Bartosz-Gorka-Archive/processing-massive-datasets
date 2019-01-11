@@ -70,6 +70,14 @@ def hash_song_ids(songs_ids_set, hash_functions, prime):
     return songs
 
 
+def hash_user_history(user_songs_dict, hashed_songs):
+    hashed_user_songs = {}
+    for user_id, songs_list in user_songs_dict.items():
+        hashed_user_songs[user_id] = [hashed_songs[song] for song in songs_list]
+
+    return hashed_user_songs
+
+
 def calculate_similarity(similarity, songs):
     for (user_id, my_song_list) in songs.items():
         # For now only first 100 users
@@ -113,7 +121,6 @@ def nearest_neighbors(similarity):
 
 
 # TODO list
-# - build structure with user_id: hashed song_id list
 # - hash song_id -> minhashes
 # - RMSE function
 # - compare results and calculate RMSE
@@ -146,9 +153,11 @@ def main():
             songs_ids_set.add(song_id)
 
         print('READ FINISHED')
+
         max_song_id = max(songs_ids_set)
         hash_functions, prime = generate_hash_functions(max_song_id)
         hashed_songs_ids = hash_song_ids(songs_ids_set, hash_functions, prime)
+        hashed_user_songs = hash_user_history(user_songs_groups, hashed_songs_ids)
 
         print('STRUCTURES BUILT')
 
