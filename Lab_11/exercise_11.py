@@ -1,4 +1,5 @@
 import csv
+from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
 
@@ -43,6 +44,17 @@ def minhash_similarity(list_a, list_b, length):
 
 def next_prime(n):
     return nextprime(n)
+
+
+def generate_hash_functions(n):
+    hash_functions = []
+    prime_minus_one = next_prime(n) - 1
+
+    for i in range(0, TOTAL_HASH_FUNCTIONS):
+        a = randint(1, prime_minus_one)
+        b = randint(0, prime_minus_one)
+        hash_functions.append([a, b])
+    return hash_functions
 
 
 def calculate_similarity(similarity, songs):
@@ -91,15 +103,14 @@ def nearest_neighbors(similarity):
 # - build structure with user_id: hashed song_id list
 # - hash song_id -> minhashes
 # - build structure set of song_id, next dictionary with hashes
-# - hash functions - generate list of parameters a, b
 # - RMSE function
 # - compare results and calculate RMSE
 # - generate statistics in loop
 # - prepare raport - graphs
 
 def main():
-    x = next_prime(1000032)
-    print(x)
+    hashes = generate_hash_functions(10000)
+    print(hashes)
     # with open(SOURCE_FILE_NAME, 'r') as f:
     #     reader = csv.reader(f)
     #     # Skip header with fields
