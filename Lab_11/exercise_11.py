@@ -3,7 +3,7 @@ from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
 
-SOURCE_FILE_NAME = 'facts2.csv'
+SOURCE_FILE_NAME = 'facts.csv'
 NEAREST_NEIGHBOR_SIZE = 100
 FIRST_N_USERS = 100
 TOTAL_HASH_FUNCTIONS = 100
@@ -54,7 +54,20 @@ def generate_hash_functions(n):
         a = randint(1, prime_minus_one)
         b = randint(0, prime_minus_one)
         hash_functions.append([a, b])
-    return hash_functions
+
+    return (hash_functions, prime_minus_one + 1)
+
+
+def hash_value(value, prime, params):
+    return (params[0] * value + params[1]) % prime;
+
+
+def hash_song_ids(songs_ids_set, hash_functions, prime):
+    songs = {}
+    for song in songs_ids_set:
+        songs[song] = [hash_value(song, prime, elem) for elem in hash_functions]
+
+    return songs
 
 
 def calculate_similarity(similarity, songs):
@@ -102,40 +115,42 @@ def nearest_neighbors(similarity):
 # TODO list
 # - build structure with user_id: hashed song_id list
 # - hash song_id -> minhashes
-# - build structure set of song_id, next dictionary with hashes
 # - RMSE function
 # - compare results and calculate RMSE
 # - generate statistics in loop
 # - prepare raport - graphs
 
 def main():
-    hashes = generate_hash_functions(10000)
-    print(hashes)
-    # with open(SOURCE_FILE_NAME, 'r') as f:
-    #     reader = csv.reader(f)
-    #     # Skip header with fields
-    #     next(reader, None)
-    #
-    #     user_songs_groups = {}
-    #     user_similarity = {}
-    #
-    #     print('START')
-        # for record in reader:
-        #     # Fist value in record is a `user_id`, second - `song_id`
-        #     user_id = int(record[0])
-        #     song_id = int(record[1])
-        #
-        #     # Sets for speed-up calculations
-        #     if user_id in user_songs_groups:
-        #         user_songs_groups[user_id].add(song_id)
-        #     else:
-        #         user_songs_groups[user_id] = {song_id}
-        #
-        # print('CALCULATE SIMILARITY')
-        # calculate_similarity(user_similarity, user_songs_groups)
-        # print('NEIGHBORS')
-        # nearest_neighbors(user_similarity)
-        # print('FINISH')
+    with open(SOURCE_FILE_NAME, 'r') as f:
+        reader = csv.reader(f)
+        # Skip header with fields
+        next(reader, None)
+
+        user_songs_groups = {}
+        user_similarity = {}
+        songs_ids_set = set()
+
+        print('START')
+        for record in reader:
+            # Fist value in record is a `user_id`, second - `song_id`
+            user_id = int(record[0])
+            song_id = int(record[1])
+
+            # Sets for speed-up calculations
+            if user_id in user_songs_groups:
+                user_songs_groups[user_id].add(song_id)
+            else:
+                user_songs_groups[user_id] = {song_id}
+
+            # Collect `song_id` - this should speed-up our calculations
+            songs_ids_set.add(song_id)
+
+        print('READ FINISHED')
+        max_song_id = max(songs_ids_set)
+        hash_functions, prime = generate_hash_functions(max_song_id)
+        hashed_songs_ids = hash_song_ids(songs_ids_set, hash_functions, prime)
+
+        print('STRUCTURES BUILT')
 
 
 if __name__ == '__main__':
