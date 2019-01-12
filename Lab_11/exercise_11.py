@@ -1,11 +1,13 @@
 import csv
+from time import clock # TODO REMOVE
+from math import sqrt
 from numpy import min as np_min
 from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
 
 SOURCE_FILE_NAME = 'facts.csv'
-NEAREST_NEIGHBOR_SIZE = 100
+NEAREST_NEIGHBOR_SIZE = -1
 FIRST_N_USERS = 100
 TOTAL_HASH_FUNCTIONS = 100
 
@@ -74,17 +76,18 @@ def hash_song_ids(songs_ids_set, hash_functions, prime):
 def hash_user_history(user_songs_dict, hashed_songs):
     hashed_user_songs = {}
     for user_id, songs_list in user_songs_dict.items():
-        min_hashed_songs_list = []
-        for i in range(0, TOTAL_HASH_FUNCTIONS):
-            min_hashed_songs_list.append([])
+        min_hashed_songs_dir = {}
+        print(user_id)
 
         for val in [hashed_songs[song] for song in songs_list]:
             for i, x in enumerate(val):
-                min_hashed_songs_list[i].append(x)
+                hash_list = min_hashed_songs_dir.get(i, [])
+                hash_list.append(x)
+                min_hashed_songs_dir[i] = hash_list
 
         results_list = []
-        for values in min_hashed_songs_list:
-            results_list.append(np_min(values))
+        for i in range(0, TOTAL_HASH_FUNCTIONS):
+            results_list.append(np_min(min_hashed_songs_dir[i]))
 
         hashed_user_songs[user_id] = results_list
 
@@ -104,7 +107,7 @@ def calculate_minhash_similarity(hashed_user_songs):
             similarity_value = minhash_similarity(my_song_list, partner_songs_list, TOTAL_HASH_FUNCTIONS)
 
             if similarity_value > 0:
-                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE or NEAREST_NEIGHBOR_SIZE == -1:
+                if NEAREST_NEIGHBOR_SIZE == -1 or len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE:
                     heappush(my_similarity_list, [similarity_value, partner_id])
                 else:
                     heappushpop(my_similarity_list, [similarity_value, partner_id])
@@ -122,19 +125,16 @@ def calculate_jaccard_similarity(users_songs):
         if user_id > FIRST_N_USERS:
             break
 
-        my_similarity_list = []
+        my_similarity_dir = {}
 
         for partner_id, partner_songs_list in users_songs.items():
             similarity_value = jaccard(my_song_list, partner_songs_list)
 
             if similarity_value > 0:
-                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE or NEAREST_NEIGHBOR_SIZE == -1:
-                    heappush(my_similarity_list, [similarity_value, partner_id])
-                else:
-                    heappushpop(my_similarity_list, [similarity_value, partner_id])
+                my_similarity_dir[partner_id] = similarity_value
 
         # Store similarity result
-        similarity[user_id] = my_similarity_list
+        similarity[user_id] = my_similarity_dir
 
     return similarity
 
@@ -157,10 +157,22 @@ def nearest_neighbors(similarity):
     f.close()
 
 
+def error_single_user(minhash_list, jaccard_dir):
+    list_length = len(minhash_list)
+    if list_length == 0:
+        return 0.0
+
+    value = 0.0
+    for record in minhash_list:
+        value += pow(record[0] - jaccard_dir[record[1]], 2)
+
+    return value / list_length
+
+
 # TODO list
-# - RMSE function
-# - compare results and calculate RMSE
-# - generate statistics in loop
+# - minhash - all neighbors + changed structure to dict, not list
+# - error_single_user - based on jaccard, not minhash
+# - fix store results in file after ^ changes
 # - prepare raport - graphs
 
 def main():
@@ -174,6 +186,7 @@ def main():
         songs_ids_set = set()
 
         print('START')
+        print(clock())
 
         for record in reader:
             # Fist value in record is a `user_id`, second - `song_id`
@@ -189,24 +202,33 @@ def main():
             # Collect `song_id` - this should speed-up our calculations
             songs_ids_set.add(song_id)
         print('READ FINISHED')
+        print(clock())
 
         max_song_id = max(songs_ids_set)
         hash_functions, prime = generate_hash_functions(max_song_id)
         hashed_songs_ids = hash_song_ids(songs_ids_set, hash_functions, prime)
+        print(clock())
         hashed_user_songs = hash_user_history(user_songs_groups, hashed_songs_ids)
         print('STRUCTURES BUILT')
+        print(clock())
 
         minhash_dict_similarity = calculate_minhash_similarity(hashed_user_songs)
         print('MINHASH SIMILARITY LIST BUILD')
+        print(clock())
 
         jaccard_dict_similarity = calculate_jaccard_similarity(user_songs_groups)
         print('JACCARD SIMILARITY LIST BUILD')
+        print(clock())
 
-        print(minhash_dict_similarity)
-        print(jaccard_dict_similarity)
+        rsme = 0.0
+        for user_id, values in minhash_dict_similarity.items():
+            rsme += error_single_user(values, jaccard_dict_similarity[user_id])
+        print(sqrt(rsme))
+        print(clock())
 
         nearest_neighbors(minhash_dict_similarity)
         print('FINISH')
+        print(clock())
 
 if __name__ == '__main__':
     main()
