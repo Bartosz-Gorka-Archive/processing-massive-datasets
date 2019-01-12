@@ -6,8 +6,7 @@ from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
 
-SOURCE_FILE_NAME = 'facts.csv'
-NEAREST_NEIGHBOR_SIZE = -1
+SOURCE_FILE_NAME = 'facts2.csv'
 FIRST_N_USERS = 100
 TOTAL_HASH_FUNCTIONS = 100
 
@@ -107,10 +106,7 @@ def calculate_minhash_similarity(hashed_user_songs):
             similarity_value = minhash_similarity(my_song_list, partner_songs_list, TOTAL_HASH_FUNCTIONS)
 
             if similarity_value > 0:
-                if NEAREST_NEIGHBOR_SIZE == -1 or len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE:
-                    heappush(my_similarity_list, [similarity_value, partner_id])
-                else:
-                    heappushpop(my_similarity_list, [similarity_value, partner_id])
+                my_similarity_list.append([similarity_value, partner_id])
 
         # Store similarity result
         similarity[user_id] = my_similarity_list
@@ -147,12 +143,9 @@ def sort_by_similarity(similarity_list):
 def nearest_neighbors(similarity):
     f = open('RESULTS.txt', 'w+')
     for user_id in sorted(similarity.keys()):
-        if user_id > NEAREST_NEIGHBOR_SIZE:
-            break
-
         list_of_partners_similarity = similarity[user_id];
         f.write(f'User = {user_id}\n')
-        [f.write('{:8d} {:7.5f}\n'.format(record[1], record[0])) for record in sort_by_similarity(list_of_partners_similarity)[0:NEAREST_NEIGHBOR_SIZE]]
+        [f.write('{:8d} {:7.5f}\n'.format(record[1], record[0])) for record in sort_by_similarity(list_of_partners_similarity)]
 
     f.close()
 
@@ -170,7 +163,7 @@ def error_single_user(minhash_list, jaccard_dir):
 
 
 # TODO list
-# - minhash - all neighbors + changed structure to dict, not list
+# - minhash - changed structure to dict, not list
 # - error_single_user - based on jaccard, not minhash
 # - fix store results in file after ^ changes
 # - prepare raport - graphs
