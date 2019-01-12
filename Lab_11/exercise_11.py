@@ -121,9 +121,8 @@ def sort_by_similarity(similarity_list):
 
 
 def nearest_neighbors(similarity):
-    f = open('RESULTS_100.txt', 'w+')
+    f = open('RESULTS.txt', 'w+')
     for user_id in sorted(similarity.keys()):
-        # Store only first 100 users
         if user_id > NEAREST_NEIGHBOR_SIZE:
             break
 
@@ -177,6 +176,10 @@ def main():
         minhash_dict_similarity = calculate_similarity(hashed_user_songs)
 
         print('MINHASH SIMILARITY LIST BUILD')
+
+        nearest_neighbors(minhash_dict_similarity)
+
+        print('FINISH')
 
 if __name__ == '__main__':
     main()
