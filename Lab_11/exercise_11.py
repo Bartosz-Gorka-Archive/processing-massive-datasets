@@ -1,4 +1,5 @@
 import csv
+from numpy import min as np_min
 from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
@@ -73,32 +74,45 @@ def hash_song_ids(songs_ids_set, hash_functions, prime):
 def hash_user_history(user_songs_dict, hashed_songs):
     hashed_user_songs = {}
     for user_id, songs_list in user_songs_dict.items():
-        hashed_user_songs[user_id] = [hashed_songs[song] for song in songs_list]
+        min_hashed_songs_list = []
+        for i in range(0, TOTAL_HASH_FUNCTIONS):
+            min_hashed_songs_list.append([])
+
+        for val in [hashed_songs[song] for song in songs_list]:
+            for i, x in enumerate(val):
+                min_hashed_songs_list[i].append(x)
+
+        results_list = []
+        for values in min_hashed_songs_list:
+            results_list.append(np_min(values))
+
+        hashed_user_songs[user_id] = results_list
 
     return hashed_user_songs
 
 
-def calculate_similarity(similarity, songs):
-    for (user_id, my_song_list) in songs.items():
-        # For now only first 100 users
-        if user_id > 100:
+def calculate_similarity(hashed_user_songs):
+    similarity = {}
+
+    for user_id, my_song_list in hashed_user_songs.items():
+        if user_id > FIRST_N_USERS:
             break
 
-        my_similarity_list = similarity.get(user_id, [])
+        my_similarity_list = []
 
-        # Calculate Jaccard Index with all partners
-        for (partner_id, partner_songs_list) in songs.items():
-            similarity_value = jaccard(my_song_list, partner_songs_list)
+        for partner_id, partner_songs_list in hashed_user_songs.items():
+            similarity_value = minhash_similarity(my_song_list, partner_songs_list, TOTAL_HASH_FUNCTIONS)
 
-            # Add only when greater than zero
             if similarity_value > 0:
-                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE:
+                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE or NEAREST_NEIGHBOR_SIZE == -1:
                     heappush(my_similarity_list, [similarity_value, partner_id])
                 else:
                     heappushpop(my_similarity_list, [similarity_value, partner_id])
 
-        # Store updated stats
+        # Store similarity result
         similarity[user_id] = my_similarity_list
+
+    return similarity
 
 
 def sort_by_similarity(similarity_list):
@@ -121,7 +135,6 @@ def nearest_neighbors(similarity):
 
 
 # TODO list
-# - hash song_id -> minhashes
 # - RMSE function
 # - compare results and calculate RMSE
 # - generate statistics in loop
@@ -161,6 +174,9 @@ def main():
 
         print('STRUCTURES BUILT')
 
+        minhash_dict_similarity = calculate_similarity(hashed_user_songs)
+
+        print('MINHASH SIMILARITY LIST BUILD')
 
 if __name__ == '__main__':
     main()
