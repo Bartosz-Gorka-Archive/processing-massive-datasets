@@ -91,7 +91,7 @@ def hash_user_history(user_songs_dict, hashed_songs):
     return hashed_user_songs
 
 
-def calculate_similarity(hashed_user_songs):
+def calculate_minhash_similarity(hashed_user_songs):
     similarity = {}
 
     for user_id, my_song_list in hashed_user_songs.items():
@@ -102,6 +102,30 @@ def calculate_similarity(hashed_user_songs):
 
         for partner_id, partner_songs_list in hashed_user_songs.items():
             similarity_value = minhash_similarity(my_song_list, partner_songs_list, TOTAL_HASH_FUNCTIONS)
+
+            if similarity_value > 0:
+                if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE or NEAREST_NEIGHBOR_SIZE == -1:
+                    heappush(my_similarity_list, [similarity_value, partner_id])
+                else:
+                    heappushpop(my_similarity_list, [similarity_value, partner_id])
+
+        # Store similarity result
+        similarity[user_id] = my_similarity_list
+
+    return similarity
+
+
+def calculate_jaccard_similarity(users_songs):
+    similarity = {}
+
+    for user_id, my_song_list in users_songs.items():
+        if user_id > FIRST_N_USERS:
+            break
+
+        my_similarity_list = []
+
+        for partner_id, partner_songs_list in users_songs.items():
+            similarity_value = jaccard(my_song_list, partner_songs_list)
 
             if similarity_value > 0:
                 if len(my_similarity_list) < NEAREST_NEIGHBOR_SIZE or NEAREST_NEIGHBOR_SIZE == -1:
@@ -150,6 +174,7 @@ def main():
         songs_ids_set = set()
 
         print('START')
+
         for record in reader:
             # Fist value in record is a `user_id`, second - `song_id`
             user_id = int(record[0])
@@ -163,22 +188,24 @@ def main():
 
             # Collect `song_id` - this should speed-up our calculations
             songs_ids_set.add(song_id)
-
         print('READ FINISHED')
 
         max_song_id = max(songs_ids_set)
         hash_functions, prime = generate_hash_functions(max_song_id)
         hashed_songs_ids = hash_song_ids(songs_ids_set, hash_functions, prime)
         hashed_user_songs = hash_user_history(user_songs_groups, hashed_songs_ids)
-
         print('STRUCTURES BUILT')
 
-        minhash_dict_similarity = calculate_similarity(hashed_user_songs)
-
+        minhash_dict_similarity = calculate_minhash_similarity(hashed_user_songs)
         print('MINHASH SIMILARITY LIST BUILD')
 
-        nearest_neighbors(minhash_dict_similarity)
+        jaccard_dict_similarity = calculate_jaccard_similarity(user_songs_groups)
+        print('JACCARD SIMILARITY LIST BUILD')
 
+        print(minhash_dict_similarity)
+        print(jaccard_dict_similarity)
+
+        nearest_neighbors(minhash_dict_similarity)
         print('FINISH')
 
 if __name__ == '__main__':
