@@ -6,7 +6,7 @@ from random import randint
 from sympy import nextprime
 from heapq import heappush, heappushpop
 
-SOURCE_FILE_NAME = 'facts2.csv'
+SOURCE_FILE_NAME = 'facts.csv'
 FIRST_N_USERS = 100
 TOTAL_HASH_FUNCTIONS = 100
 
@@ -50,14 +50,14 @@ def next_prime(n):
 
 def generate_hash_functions(n):
     hash_functions = []
-    prime_minus_one = next_prime(n) - 1
+    prime = next_prime(n)
 
     for i in range(0, TOTAL_HASH_FUNCTIONS):
-        a = randint(1, prime_minus_one)
-        b = randint(0, prime_minus_one)
+        a = randint(1, prime)
+        b = randint(0, prime)
         hash_functions.append([a, b])
 
-    return (hash_functions, prime_minus_one + 1)
+    return hash_functions, prime
 
 
 def hash_value(value, prime, params):
@@ -75,18 +75,12 @@ def hash_song_ids(songs_ids_set, hash_functions, prime):
 def hash_user_history(user_songs_dict, hashed_songs):
     hashed_user_songs = {}
     for user_id, songs_list in user_songs_dict.items():
-        min_hashed_songs_dir = {}
         print(user_id)
-
-        for val in [hashed_songs[song] for song in songs_list]:
-            for i, x in enumerate(val):
-                hash_list = min_hashed_songs_dir.get(i, [])
-                hash_list.append(x)
-                min_hashed_songs_dir[i] = hash_list
+        signatures = [hashed_songs[song] for song in songs_list]
 
         results_list = []
         for i in range(0, TOTAL_HASH_FUNCTIONS):
-            results_list.append(np_min(min_hashed_songs_dir[i]))
+            results_list.append(min(x[i] for x in signatures))
 
         hashed_user_songs[user_id] = results_list
 
@@ -99,6 +93,7 @@ def calculate_minhash_similarity(hashed_user_songs):
     for user_id, my_song_list in hashed_user_songs.items():
         if user_id > FIRST_N_USERS:
             break
+        print(user_id)
 
         my_similarity_list = []
 
@@ -120,6 +115,7 @@ def calculate_jaccard_similarity(users_songs):
     for user_id, my_song_list in users_songs.items():
         if user_id > FIRST_N_USERS:
             break
+        print(user_id)
 
         my_similarity_dir = {}
 
