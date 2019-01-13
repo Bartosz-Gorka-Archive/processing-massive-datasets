@@ -132,7 +132,7 @@ def calculate_jaccard_similarity(users_songs):
 
 def error_single_user(minhash_dir, jaccard_dir):
     keys = set(jaccard_dir.keys())
-    keys = [keys.add(key) for key in minhash_dir.keys()]
+    [keys.add(key) for key in minhash_dir.keys()]
     keys_length = len(keys)
     if keys_length == 0:
         return 0.0
