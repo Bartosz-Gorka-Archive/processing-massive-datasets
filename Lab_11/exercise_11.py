@@ -95,16 +95,16 @@ def calculate_minhash_similarity(hashed_user_songs):
             break
         print(user_id)
 
-        my_similarity_list = []
+        my_similarity_dir = {}
 
         for partner_id, partner_songs_list in hashed_user_songs.items():
             similarity_value = minhash_similarity(my_song_list, partner_songs_list, TOTAL_HASH_FUNCTIONS)
 
             if similarity_value > 0:
-                my_similarity_list.append([similarity_value, partner_id])
+                my_similarity_dir[partner_id] = similarity_value
 
         # Store similarity result
-        similarity[user_id] = my_similarity_list
+        similarity[user_id] = my_similarity_dir
 
     return similarity
 
@@ -146,22 +146,21 @@ def nearest_neighbors(similarity):
     f.close()
 
 
-def error_single_user(minhash_list, jaccard_dir):
-    list_length = len(minhash_list)
-    if list_length == 0:
+def error_single_user(minhash_dir, jaccard_dir):
+    keys = set(jaccard_dir.keys())
+    keys = [keys.add(key) for key in minhash_dir.keys()]
+    keys_length = len(keys)
+    if keys_length == 0:
         return 0.0
 
     value = 0.0
-    for record in minhash_list:
-        value += pow(record[0] - jaccard_dir[record[1]], 2)
+    for key in keys:
+        value += pow(minhash_dir.get(key, 0) - jaccard_dir.get(key, 0), 2)
 
-    return value / list_length
+    return value / keys_length
 
 
 # TODO list
-# - minhash - changed structure to dict, not list
-# - error_single_user - based on jaccard, not minhash
-# - fix store results in file after ^ changes
 # - prepare raport - graphs
 
 def main():
@@ -211,11 +210,11 @@ def main():
 
         rsme = 0.0
         for user_id, values in minhash_dict_similarity.items():
-            rsme += error_single_user(values, jaccard_dict_similarity[user_id])
-        print(sqrt(rsme))
-        print(clock())
+            rsme += sqrt(error_single_user(values, jaccard_dict_similarity[user_id]))
+        print(FIRST_N_USERS, TOTAL_HASH_FUNCTIONS, rsme, rsme/FIRST_N_USERS)
+        # print(clock())
 
-        nearest_neighbors(minhash_dict_similarity)
+        # nearest_neighbors(minhash_dict_similarity)
         print('FINISH')
         print(clock())
 
