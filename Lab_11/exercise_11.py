@@ -4,7 +4,6 @@ from math import sqrt
 from numpy import min as np_min
 from random import randint
 from sympy import nextprime
-from heapq import heappush, heappushpop
 
 SOURCE_FILE_NAME = 'facts.csv'
 FIRST_N_USERS = 100
@@ -131,21 +130,6 @@ def calculate_jaccard_similarity(users_songs):
     return similarity
 
 
-def sort_by_similarity(similarity_list):
-    # Sort first by value, when conflicts - user_id
-    return sorted(similarity_list, key=lambda record: (record[0], record[1]), reverse=True)
-
-
-def nearest_neighbors(similarity):
-    f = open('RESULTS.txt', 'w+')
-    for user_id in sorted(similarity.keys()):
-        list_of_partners_similarity = similarity[user_id];
-        f.write(f'User = {user_id}\n')
-        [f.write('{:8d} {:7.5f}\n'.format(record[1], record[0])) for record in sort_by_similarity(list_of_partners_similarity)]
-
-    f.close()
-
-
 def error_single_user(minhash_dir, jaccard_dir):
     keys = set(jaccard_dir.keys())
     keys = [keys.add(key) for key in minhash_dir.keys()]
@@ -212,9 +196,7 @@ def main():
         for user_id, values in minhash_dict_similarity.items():
             rsme += sqrt(error_single_user(values, jaccard_dict_similarity[user_id]))
         print(FIRST_N_USERS, TOTAL_HASH_FUNCTIONS, rsme, rsme/FIRST_N_USERS)
-        # print(clock())
 
-        # nearest_neighbors(minhash_dict_similarity)
         print('FINISH')
         print(clock())
 
